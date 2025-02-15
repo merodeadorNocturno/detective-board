@@ -27,10 +27,11 @@ These dependencies are listed in the `Cargo.toml` file:
 
 ```toml
 [dependencies]
-surrealdb = "1.3.3"  # Use a specific, known-working version.
-tokio = { version = "1.4.2", features = ["full"] }
-serde = { version = "1.0", features = ["derive"] }
-serde_json = "1.0"
+chrono = "0.4.39"
+serde = "1.0.217"
+serde_json = "1.0.138"
+surrealdb = "2.2.0"
+tokio = { version = "1.43.0", features = ["full"] }
 ```
 
 ## Schema
