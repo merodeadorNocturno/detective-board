@@ -1,0 +1,72 @@
+-- Define the `person` table
+DEFINE TABLE person SCHEMAFULL;
+
+DEFINE FIELD name ON TABLE person TYPE string;
+DEFINE FIELD alias ON TABLE person TYPE option<string>;
+DEFINE FIELD description ON TABLE person TYPE option<string>;
+DEFINE FIELD date_of_birth ON TABLE person TYPE option<datetime>;
+DEFINE FIELD address ON TABLE person TYPE option<string>;
+
+-- Define the `location` table
+DEFINE TABLE location SCHEMAFULL;
+
+DEFINE FIELD name ON TABLE location TYPE string;
+DEFINE FIELD latitude ON TABLE location TYPE option<float>;
+DEFINE FIELD longitude ON TABLE location TYPE option<float>;
+DEFINE FIELD description ON TABLE location TYPE option<string>;
+
+-- Define the `organization` table
+DEFINE TABLE organization SCHEMAFULL;
+
+DEFINE FIELD name ON TABLE organization TYPE string;
+DEFINE FIELD description ON TABLE organization TYPE option<string>;
+
+-- Define the `event` table
+DEFINE TABLE event SCHEMAFULL;
+
+DEFINE FIELD name ON TABLE event TYPE string;
+DEFINE FIELD timestamp ON TABLE event TYPE datetime;
+DEFINE FIELD description ON TABLE event TYPE option<string>;
+
+-- Define the `evidence` table
+DEFINE TABLE evidence SCHEMAFULL;
+
+DEFINE FIELD name ON TABLE evidence TYPE string;
+DEFINE FIELD description ON TABLE evidence TYPE option<string>;
+DEFINE FIELD type ON TABLE evidence TYPE string;
+DEFINE FIELD location ON TABLE evidence TYPE option<record(location)>;
+
+-- Define the `related_to` edge (generic relationship)
+DEFINE TABLE related_to SCHEMAFULL;
+DEFINE FIELD out ON TABLE related_to TYPE record<person, location, organization, event, evidence>;
+DEFINE FIELD in ON TABLE related_to TYPE record<person, location, organization, event, evidence>;
+
+-- Define the `at` edge (person/event at a location)
+DEFINE TABLE at SCHEMAFULL;
+DEFINE FIELD out ON TABLE at TYPE record<person, event>;
+DEFINE FIELD in ON TABLE at TYPE record<location>;
+
+-- Define the `member_of` edge (person belongs to an organization)
+DEFINE TABLE member_of SCHEMAFULL;
+DEFINE FIELD out ON TABLE member_of TYPE record<person>;
+DEFINE FIELD in ON TABLE member_of TYPE record<organization>;
+
+-- Define the `involved_in` edge (person involved in an event)
+DEFINE TABLE involved_in SCHEMAFULL;
+DEFINE FIELD out ON TABLE involved_in TYPE record<person>;
+DEFINE FIELD in ON TABLE involved_in TYPE record<event>;
+
+-- Define the `found_at` edge (evidence found at a location)
+DEFINE TABLE found_at SCHEMAFULL;
+DEFINE FIELD out ON TABLE found_at TYPE record<evidence>;
+DEFINE FIELD in ON TABLE found_at TYPE record<location>;
+
+-- Define the `related_evidence` edge (evidence related to an entity)
+DEFINE TABLE related_evidence SCHEMAFULL;
+DEFINE FIELD out ON TABLE related_evidence TYPE record<evidence>;
+DEFINE FIELD in ON TABLE related_evidence TYPE record<person, event, organization>;
+
+-- Define the `linked_to` edge (person linked to person or organization linked to organization)
+DEFINE TABLE linked_to SCHEMAFULL;
+DEFINE FIELD out ON TABLE linked_to TYPE record<person, organization>;
+DEFINE FIELD in ON TABLE linked_to TYPE record<person, organization>;
