@@ -1,9 +1,19 @@
-use chrono::{DateTime, Local};
+// detective-board/src/models/event_model.rs
 use serde::{Deserialize, Serialize};
+use surrealdb::RecordId;
 
-#[derive(Deserialize, Serialize)]
+#[derive(Debug, Serialize, Deserialize)]
 pub struct Event {
-    name: String,
-    timestamp: DateTime<Local>,
-    description: Option<String>,
+    pub id: RecordId,
+    pub name: String,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub description: Option<String>,
+}
+
+#[derive(Debug, Serialize, Deserialize)]
+pub struct EventJson {
+    pub id: String,
+    pub name: String,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub description: Option<String>,
 }

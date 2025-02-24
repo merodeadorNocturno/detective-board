@@ -11,7 +11,15 @@ mod models;
 mod utils;
 
 // local crates
-use crate::{controllers::person_controller::person_html_controllers, db::config::Database};
+use crate::{
+    controllers::{
+        event_controller::event_html_controllers, evidence_controller::evidence_html_controllers,
+        location_controller::location_html_controllers,
+        organization_controller::organization_html_controllers,
+        person_controller::person_html_controllers,
+    },
+    db::config::Database,
+};
 
 #[actix_web::main]
 async fn main() -> std::io::Result<()> {
@@ -62,6 +70,10 @@ async fn main() -> std::io::Result<()> {
             .wrap(cors)
             .app_data(sdb_data.clone())
             .configure(person_html_controllers)
+            .configure(event_html_controllers)
+            .configure(evidence_html_controllers)
+            .configure(location_html_controllers)
+            .configure(organization_html_controllers)
     })
     .bind("0.0.0.0:8080")
     .expect("FAILED TO BIND TO PORT")

@@ -6,16 +6,41 @@ use surrealdb::{Error, RecordId};
 
 use crate::db::config::Database;
 
-pub async fn util_find_all<T: DeserializeOwned>(
-    db: &Data<Database>,
-    table_name: &str,
-) -> Option<Vec<T>> {
-    let result = db.client.select(table_name).await;
+// pub async fn util_find_all<T: DeserializeOwned>(
+//     db: &Data<Database>,
+//     table_name: &str,
+// ) -> Option<Vec<T>> {
+//     let result = db.client.select(table_name).await;
+
+//     match result {
+//         Ok(all_users) => Some(all_users),
+//         Err(e) => {
+//             error!("Error {}.find_all:: {:?}", &table_name, e);
+//             None
+//         }
+//     }
+// }
+pub async fn util_find_all<T>(db: &Data<Database>, table_name: &str) -> Option<Vec<T>>
+where
+    T: DeserializeOwned + Serialize, // Remove Send + Sync + 'static if not strictly necessary
+{
+    let result: Result<Vec<T>, Error> = db.client.select(table_name).await;
 
     match result {
-        Ok(all_users) => Some(all_users),
+        Ok(items) => Some(items),
         Err(e) => {
             error!("Error {}.find_all:: {:?}", &table_name, e);
+
+            // Attempt to query as raw values to debug the response
+            if let Ok(mut response) = db
+                .client
+                .query(format!("SELECT * FROM {}", table_name))
+                .await
+            {
+                if let Ok(raw_values) = response.take::<Vec<serde_json::Value>>(0) {
+                    eprintln!("Raw values from {}: {:?}", table_name, raw_values);
+                }
+            }
             None
         }
     }

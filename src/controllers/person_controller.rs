@@ -15,7 +15,7 @@ use serde_json::json;
 // use validator::Validate;
 
 use crate::{
-    db::{config::Database, person_db::*},
+    db::{config::Database, person_db::PersonDB},
     error::person_error::PersonError,
     models::person_model::*,
 };

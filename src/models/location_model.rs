@@ -1,63 +1,35 @@
+// detective-board/src/models/location_model.rs
+use geo_types::Point;
 use serde::{Deserialize, Serialize};
-use surrealdb::sql::{Geometry, Value};
+use surrealdb::{sql::Geometry, RecordId}; // Import geo-types
 
-#[derive(Deserialize, Serialize)]
+#[derive(Deserialize, Serialize, Debug)]
 pub struct Location {
-    name: String,
-    description: String,
+    pub id: RecordId,
+    pub name: String,
     #[serde(skip_serializing_if = "Option::is_none")]
-    coordinates: Option<Geometry>,
+    #[serde(deserialize_with = "deserialize_geometry")] // Use custom deserializer
+    pub coordinates: Option<Geometry>,
 }
 
-#[derive(Debug, Serialize, Deserialize)]
-#[serde(tag = "type")]
-pub enum FeatureGeometry {
-    Point(Point),
-    LineString(LineString),
-    Polygon(Polygon),
-    MultiPoint(MultiPoint),
-    MultiLineString(MultiLineString),
-    MultiPolygon(MultiPolygon),
-    GeometryCollection(GeometryCollection),
-}
-#[derive(Debug, Serialize, Deserialize)]
-#[serde(tag = "type", rename_all = "PascalCase")]
-pub struct Feature {
-    pub geometry: FeatureGeometry,
+#[derive(Deserialize, Serialize, Debug)]
+pub struct LocationJson {
+    pub id: String,
+    pub name: String,
     #[serde(skip_serializing_if = "Option::is_none")]
-    pub properties: Option<std::collections::HashMap<String, Value>>,
-}
-#[derive(Debug, Serialize, Deserialize)]
-pub struct Point {
-    pub coordinates: Vec<f64>,
+    #[serde(deserialize_with = "deserialize_geometry")] //Use custom deserializer
+    pub coordinates: Option<Geometry>,
 }
 
-#[derive(Debug, Serialize, Deserialize)]
-pub struct LineString {
-    pub coordinates: Vec<Vec<f64>>,
-}
+fn deserialize_geometry<'de, D>(deserializer: D) -> Result<Option<Geometry>, D::Error>
+where
+    D: serde::Deserializer<'de>,
+{
+    // Attempt to deserialize as a Point first
+    if let Ok(point) = Point::deserialize(deserializer) {
+        return Ok(Some(Geometry::Point(point)));
+    }
 
-#[derive(Debug, Serialize, Deserialize)]
-pub struct Polygon {
-    pub coordinates: Vec<Vec<Vec<f64>>>,
-}
-
-#[derive(Debug, Serialize, Deserialize)]
-pub struct MultiPoint {
-    pub coordinates: Vec<Vec<f64>>,
-}
-
-#[derive(Debug, Serialize, Deserialize)]
-pub struct MultiLineString {
-    pub coordinates: Vec<Vec<Vec<f64>>>,
-}
-
-#[derive(Debug, Serialize, Deserialize)]
-pub struct MultiPolygon {
-    pub coordinates: Vec<Vec<Vec<Vec<f64>>>>,
-}
-
-#[derive(Debug, Serialize, Deserialize)]
-pub struct GeometryCollection {
-    pub geometries: Vec<FeatureGeometry>,
+    // Handle other geometry types if needed
+    Ok(None)
 }
